@@ -535,22 +535,23 @@ def foodHeuristic(state, problem):
     t=[]
     for food in temp:
         t.append([util.manhattanDistance(position, food), (food)])
-            
+                
     distance1, food1 = max(t)
-##    distance2, food2 = min(t)
+    distance2, food2 = min(t)
 
     
-    
-##    distance3, food3 = util.manhattanDistance(food1, food2)
-##    distance+= util.manhattanDistance(food1, min(t)[1])
-##    if len(temp0 ==1):
-    return max(cost,1,distance1)
+####    print ";;;;;;;;;;;",food1
+##    
+##    distance3 = util.manhattanDistance(food1, food2)
+####    distance+= util.manhattanDistance(food1, min(t)[1])
+##    if len(temp) ==1:
+##        return max(cost,1,distance1)
 ##    else:
 ##        return (distance2+ min(distance1,distance3))
-##    return max(cost,distance)
-##    return max(sum,1,d)
-##    return sum
-
+####    return max(cost,distance)
+####    return max(sum,1,d)
+####    return sum
+    return distance1
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
