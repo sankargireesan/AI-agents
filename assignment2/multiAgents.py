@@ -257,7 +257,72 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+
+
+    
+##    actions = []
+##    legalMoves = gameState.getLegalActions()
+##
+##    child =[]
+##    for action in actions:
+##        child = gameState.generateSuccessor(agentIndex, action):
+##
+##    scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
+##    bestScore = max(scores)
+##    bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
+##    chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+##        
+        
+    
+##    print num
+
+
+        ghostno =  gameState.getNumAgents()-1
+        value=-float("inf")
+        legalMoves = gameState.getLegalActions(0)
+
+        BestAction = Directions.STOP
+        for action in legalMoves:
+            pvalue = value
+            
+            value = max(value, self.MinValue(gameState.generateSuccessor(0, action), self.depth, ghostno,1))
+            
+            if value > pvalue:
+                BestAction = action
+                
+        return BestAction
+
+
+    def MaxValue(self,gameState,depth,ghostno):
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return self.evaluationFunction(gameState)
+        
+        value=-float("inf")
+        legalMovespacman = gameState.getLegalActions(0)
+        
+        for action in legalMovespacman:
+            value = max(value, self.MinValue(gameState.generateSuccessor(0, action), depth, ghostno,1))
+        
+        return value
+    
+    def MinValue(self, gameState,depth,ghostno,agentIndex):
+
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return self.evaluationFunction(gameState)
+        
+        value=float("inf")
+        legalMovesghost = gameState.getLegalActions(agentIndex)
+        for action in legalMovesghost:
+            if ghostno == agentIndex:
+                value = min(value, self.MaxValue(gameState.generateSuccessor(agentIndex, action), depth-1, ghostno))
+
+            else:
+                value = min(value, self.MinValue(gameState.generateSuccessor(agentIndex, action), depth, ghostno,agentIndex+1))
+
+
+        return value
+    
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
