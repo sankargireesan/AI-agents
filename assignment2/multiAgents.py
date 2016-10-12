@@ -280,28 +280,27 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         ghostno =  gameState.getNumAgents()-1
         value=-float("inf")
-        legalMoves = gameState.getLegalActions(0)
-
-        BestAction = Directions.STOP
-        for action in legalMoves:
+        
+        for action in gameState.getLegalActions(0):
             pvalue = value
-            
             value = max(value, self.MinValue(gameState.generateSuccessor(0, action), self.depth, ghostno,1))
             
             if value > pvalue:
-                BestAction = action
-                
-        return BestAction
+                Finalaction = action
+
+        if value==-float("inf"):
+            return Directions.STOP
+        
+        return Finalaction
 
 
     def MaxValue(self,gameState,depth,ghostno):
+        
         if gameState.isWin() or gameState.isLose() or depth == 0:
             return self.evaluationFunction(gameState)
         
-        value=-float("inf")
-        legalMovespacman = gameState.getLegalActions(0)
-        
-        for action in legalMovespacman:
+        value=-float("inf")        
+        for action in gameState.getLegalActions(0):
             value = max(value, self.MinValue(gameState.generateSuccessor(0, action), depth, ghostno,1))
         
         return value
@@ -312,14 +311,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
             return self.evaluationFunction(gameState)
         
         value=float("inf")
-        legalMovesghost = gameState.getLegalActions(agentIndex)
-        for action in legalMovesghost:
+        for action in gameState.getLegalActions(agentIndex):
             if ghostno == agentIndex:
                 value = min(value, self.MaxValue(gameState.generateSuccessor(agentIndex, action), depth-1, ghostno))
 
             else:
                 value = min(value, self.MinValue(gameState.generateSuccessor(agentIndex, action), depth, ghostno,agentIndex+1))
-
 
         return value
     
@@ -334,7 +331,65 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        ghostno =  gameState.getNumAgents()-1
+        value=-float("inf")
+        alpha =-float("inf")
+        beta =float("inf")
+
+        
+        for action in gameState.getLegalActions(0):
+            pvalue = value
+            value = max(value, self.MinValue(gameState.generateSuccessor(0, action), self.depth, ghostno,1,alpha,beta))
+            
+            if value > pvalue:
+                Finalaction = action
+
+            alpha =max(alpha,value)
+
+        if value==-float("inf"):
+            return Directions.STOP
+        
+        return Finalaction
+
+
+    def MaxValue(self,gameState,depth,ghostno,alpha,beta):
+        
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return self.evaluationFunction(gameState)
+        
+        value=-float("inf")        
+        for action in gameState.getLegalActions(0):
+            value = max(value, self.MinValue(gameState.generateSuccessor(0, action), depth, ghostno,1,alpha,beta))
+            if value >beta:
+                return value
+            alpha =max(alpha,value)
+        
+        return value
+    
+    def MinValue(self, gameState,depth,ghostno,agentIndex,alpha,beta):
+
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return self.evaluationFunction(gameState)
+        
+        value=float("inf")
+        for action in gameState.getLegalActions(agentIndex):
+            if ghostno == agentIndex:
+                value = min(value, self.MaxValue(gameState.generateSuccessor(agentIndex, action), depth-1, ghostno,alpha,beta))
+
+            else:
+                value = min(value, self.MinValue(gameState.generateSuccessor(agentIndex, action), depth, ghostno,agentIndex+1,alpha,beta))
+
+
+            if value < alpha:
+                return value
+            beta =min(beta,value)
+
+            
+
+        return value
+
+    
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
