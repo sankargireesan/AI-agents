@@ -112,7 +112,10 @@ class ReflexAgent(Agent):
 ##Ghost: (x,y)=(3.0, 7.0), East
 
 
-        
+
+
+        if successorGameState.isWin():
+            return 99999999999999999
         
         score =0
         foodpos =[]
@@ -170,6 +173,8 @@ class ReflexAgent(Agent):
 
         score -= len(foodpos)*1000
 
+        return score
+
 ##        if ghost.scaredTimer > 0:
 ##        score+= (1/distance2)*ghost.scaredTimer*20000
 
@@ -184,7 +189,7 @@ class ReflexAgent(Agent):
 
         
 ##        print newPos  
-        return score
+        
 
 
 ##        print d,"score  -> ",score        
@@ -404,7 +409,51 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        ghostno =  gameState.getNumAgents()-1
+        value=-float("inf")
+        
+        for action in gameState.getLegalActions(0):
+            pvalue = value
+            value = max(value, self.Chancevalue(gameState.generateSuccessor(0, action), self.depth, ghostno,1))
+            
+            if value > pvalue:
+                Finalaction = action
+
+        if value==-float("inf"):
+            return Directions.STOP
+        
+        return Finalaction
+
+
+    def MaxValue(self,gameState,depth,ghostno):
+        
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return self.evaluationFunction(gameState)
+        
+        value=-float("inf")        
+        for action in gameState.getLegalActions(0):
+            value = max(value, self.Chancevalue(gameState.generateSuccessor(0, action), depth, ghostno,1))
+        
+        return value
+    
+    def Chancevalue(self, gameState,depth,ghostno,agentIndex):
+
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return self.evaluationFunction(gameState)
+        
+        value=[]
+        for action in gameState.getLegalActions(agentIndex):
+            if ghostno == agentIndex:
+                value.append(self.MaxValue(gameState.generateSuccessor(agentIndex, action), depth-1, ghostno))
+
+            else:
+                value.append(self.Chancevalue(gameState.generateSuccessor(agentIndex, action), depth, ghostno,agentIndex+1))
+        sum = 0.0
+        for v in value:
+            sum +=v
+        avg = sum /len(value)
+        
+        return avg
 
 def betterEvaluationFunction(currentGameState):
     """
@@ -414,7 +463,81 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+##        successorGameState = currentGameState.generatePacmanSuccessor(action)
+
+    successorGameState = currentGameState
+    newPos = successorGameState.getPacmanPosition()
+    newFood = successorGameState.getFood()
+    newGhostStates = successorGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+    
+    
+
+    
+    score =0
+    foodpos =[]
+    foodpos = successorGameState.getFood().asList()
+
+    
+    ghostpos=[]
+    ghostpos = successorGameState.getGhostStates()
+    
+
+    d=0
+    for  ghost in ghostpos:
+        d+= util.manhattanDistance(newPos, ghost.getPosition())
+
+
+    
+    if d <= 2:
+        score =-99999999
+    else:
+        score -= 10.0/d
+    
+    
+
+    food_distance =0
+    for food in foodpos:
+        food_distance += util.manhattanDistance(newPos, food)
+
+
+    if newPos in foodpos:
+        score+=10000
+
+
+    distance2=0
+    t=[]
+
+    
+    for food in foodpos:
+        t.append(util.manhattanDistance(newPos, food))
+
+    if foodpos:
+        distance2 = min(t)
+
+    if len(foodpos) >1:
+        distance2 +=max(t)
+        
+    if len(foodpos)!=0:
+        score += 15.5/(1+distance2)
+    else:
+        score +=250/(1+len(foodpos))
+
+    
+    score -= len(foodpos)*len(foodpos)*len(foodpos)*len(foodpos)
+
+    score +=1.0/(1+(distance2))
+
+    
+    if newScaredTimes[0] >=20:
+        score += 2
+        
+
+    return score   
+
+
 
 # Abbreviation
 better = betterEvaluationFunction
