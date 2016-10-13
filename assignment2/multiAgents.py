@@ -47,14 +47,8 @@ class ReflexAgent(Agent):
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices) # Pick randomly among the best
-##        print bestIndices, chosenIndex
-##        print legalMoves
-##        print chosenIndex
-##        print gameState.generatePacmanSuccessor(legalMoves[chosenIndex]).getPacmanPosition()
         "Add more of your code here if you want to"
 
-        #print range(len(scores))
-        #print scores,"best score" , bestScore, " at", bestIndices
         return legalMoves[chosenIndex]
 
     def evaluationFunction(self, currentGameState, action):
@@ -80,38 +74,6 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        
-##        for b in newFood:
-##            if b == True:
-##                d+=1
-
-
-        
-##        for row in newFood:
-##          for point in row:
-##              if  point == True:
-##                  food += 1
-##        print "range" ,range(len(newFood[0]))
-##        print newFood.winfo_height()
-##        foodpos = []
-##        for row in range(len(newFood[0])):
-##            for column in range(len(newFood[0])):
-##                #print row, column
-##                if newFood[row-1][column-1]:
-##                    foodpos.append((row-1,column-1))
-##                    food += 1
-        
-        
-        #score= len(foodpos)
-        #print newGhostStates[0]
-        #print score
-        #util.manhattanDistance(newPos, newGhostStates[index].getPosition()) 
-##Ghost: (x,y)=(2, 7), Stop
-##Ghost: (x,y)=(2, 7), Stop
-##Ghost: (x,y)=(2, 7), Stop
-##Ghost: (x,y)=(3.0, 7.0), East
-
-
 
 
         if successorGameState.isWin():
@@ -120,7 +82,6 @@ class ReflexAgent(Agent):
         score =0
         foodpos =[]
         foodpos = successorGameState.getFood().asList()
-
         
         ghostpos=[]
         ghostpos = successorGameState.getGhostStates()
@@ -129,83 +90,33 @@ class ReflexAgent(Agent):
         for  ghost in ghostpos:
             d+= util.manhattanDistance(newPos, ghost.getPosition())
 
-        #print d
         
         if d <= 2:
             score =-99999999
         else:
             score -= 1/(d*10)
-        
-        
-
-        food_distance =0
-        for food in foodpos:
-            food_distance += util.manhattanDistance(newPos, food)
 
 
-##        if not len(foodpos) == 0:
-##            score +=20000/len(foodpos)
-##        else:
-##            score +=50000
-##        
         if newPos in foodpos:
             score+=1
-        
-##        if not food_distance == 0:
-##            score += (1/food_distance)*100000
-##        else:
-##            score+=2000
 
-##        score+= newScaredTimes[0]*1000
-
-        distance2=0
+        distance=0
         t=[]
+
         for food in foodpos:
             t.append(util.manhattanDistance(newPos, food))
             
         if foodpos:
-            distance2 = min(t)
+            distance = min(t)
 
-        if len(foodpos)!=0 and distance2 != 0:
-            score += 150/distance2
+        if len(foodpos)!=0 and distance != 0:
+            score += 150/distance
         else:
             score +=160
 
         score -= len(foodpos)*1000
 
         return score
-
-##        if ghost.scaredTimer > 0:
-##        score+= (1/distance2)*ghost.scaredTimer*20000
-
-##
-##        right = self.walls.width-2
-##
-##
-##        corner = (23, 1)
-##        if newPos != corner:
-##            score+= 1/(util.manhattanDistance(newPos, corner)*1000)
-##        
-
-        
-##        print newPos  
-        
-
-
-##        print d,"score  -> ",score        
-##
-##        if len(foodpos)==0:
-##            score
-  
-##        print successorGameState
-       
-##       print newGhostStates
-
-##        print score
-##        score = +food
-        
-#        print score
-##        return successorGameState.getScore()
 
 
 
@@ -262,25 +173,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-
-
-
-    
-##    actions = []
-##    legalMoves = gameState.getLegalActions()
-##
-##    child =[]
-##    for action in actions:
-##        child = gameState.generateSuccessor(agentIndex, action):
-##
-##    scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
-##    bestScore = max(scores)
-##    bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-##    chosenIndex = random.choice(bestIndices) # Pick randomly among the best
-##        
-        
-    
-##    print num
 
 
         ghostno =  gameState.getNumAgents()-1
@@ -464,50 +356,28 @@ def betterEvaluationFunction(currentGameState):
     """
     "*** YOUR CODE HERE ***"
 
-##        successorGameState = currentGameState.generatePacmanSuccessor(action)
-
-    successorGameState = currentGameState
-    newPos = successorGameState.getPacmanPosition()
-    newFood = successorGameState.getFood()
-    newGhostStates = successorGameState.getGhostStates()
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
     newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-
-    
-    
-
     
     score =0
     foodpos =[]
-    foodpos = successorGameState.getFood().asList()
+    foodpos = currentGameState.getFood().asList()
 
+    ghostdistance=0
+    for  ghost in newGhostStates:
+        ghostdistance+= util.manhattanDistance(newPos, ghost.getPosition())
     
-    ghostpos=[]
-    ghostpos = successorGameState.getGhostStates()
-    
-
-    d=0
-    for  ghost in ghostpos:
-        d+= util.manhattanDistance(newPos, ghost.getPosition())
-
-
-    
-    if d <= 2:
+    if ghostdistance <= 2:
         score =-99999999
     else:
-        score -= 10.0/d
-    
-    
-
-    food_distance =0
-    for food in foodpos:
-        food_distance += util.manhattanDistance(newPos, food)
-
-
+        score -= 10.0/ghostdistance
+        
     if newPos in foodpos:
         score+=10000
 
-
-    distance2=0
+    distance=0
     t=[]
 
     
@@ -515,27 +385,25 @@ def betterEvaluationFunction(currentGameState):
         t.append(util.manhattanDistance(newPos, food))
 
     if foodpos:
-        distance2 = min(t)
+        distance = min(t)
 
     if len(foodpos) >1:
-        distance2 +=max(t)
+        distance +=max(t)
         
     if len(foodpos)!=0:
-        score += 15.5/(1+distance2)
+        score += 15.5/(1+distance)
     else:
         score +=250/(1+len(foodpos))
 
     
     score -= len(foodpos)*len(foodpos)*len(foodpos)*len(foodpos)
-
-    score +=1.0/(1+(distance2))
-
     
+    score +=1.0/(1+(distance))
+
     if newScaredTimes[0] >=20:
         score += 2
-        
 
-    return score   
+    return score
 
 
 
