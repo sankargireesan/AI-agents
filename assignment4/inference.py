@@ -287,9 +287,11 @@ class ParticleFilter(InferenceModule):
         i = 0
         while i < self.numParticles:
             for p in self.legalPositions:
+                if i >= self.numParticles: break
                 self.particlePos.append(p)
                 i += 1
-                if i >= self.numParticles: break
+
+
 
     def observe(self, observation, gameState):
         """
@@ -325,9 +327,14 @@ class ParticleFilter(InferenceModule):
 
         allPossible = util.Counter()
 
+        if noisyDistance is None:
+            for i in range(self.numParticles):
+                self.particlePos[i] = self.getJailPosition()
+            return
+        oldbelief = self.getBeliefDistribution()
         for p in self.legalPositions:
             trueDistance = util.manhattanDistance(p, pacmanPosition)
-            allPossible[p] = emissionModel[trueDistance] * self.getBeliefDistribution()[p]
+            allPossible[p] += emissionModel[trueDistance] * oldbelief[p]
 
         v = 0
         for value in allPossible.values():
@@ -338,11 +345,6 @@ class ParticleFilter(InferenceModule):
             self.particlePos =[]
             for i in range(self.numParticles):
                 self.particlePos.append(util.sample(allPossible))
-
-
-        if noisyDistance is None:
-            for i in range(self.numParticles):
-                self.particlePos[i] = self.getJailPosition()
 
     def elapseTime(self, gameState):
         """
@@ -370,7 +372,6 @@ class ParticleFilter(InferenceModule):
                 # newPosDist[pos] = prob*self.getBeliefDistribution()[p]
             # t.append(util.sample(newPosDist))
 
-
         self.particlePos = t
 
 
@@ -384,11 +385,11 @@ class ParticleFilter(InferenceModule):
         """
         "*** YOUR CODE HERE ***"
         # util.raiseNotDefined()
-        PosDist = util.Counter()
+        self.PosDist = util.Counter()
         for p in self.particlePos:
-            PosDist[p] += 1.0
-        PosDist.normalize()
-        return PosDist
+            self.PosDist[p] += 1.0
+        self.PosDist.normalize()
+        return self.PosDist
 
 class MarginalInference(InferenceModule):
     """
@@ -519,7 +520,10 @@ class JointParticleFilter:
         if len(noisyDistances) < self.numGhosts:
             return
         emissionModels = [busters.getObservationDistribution(dist) for dist in noisyDistances]
+        # print emissionModels
 
+        # {1: 0.018324607329842934, 2: 0.020942408376963352, 3: 0.041884816753926704, 4: 0.08376963350785341, 5: 0.16753926701570682, 6: 0.33507853403141363, 7: 0.16753926701570682, 8: 0.08376963350785341, 9: 0.041884816753926704, 10: 0.020942408376963352, 11: 0.010471204188481676, 12: 0.005235602094240838, 13: 0.002617801047120419},
+        #  {2: 0.002617801047120419, 3: 0.005235602094240838, 4: 0.010471204188481676, 5: 0.020942408376963352, 6: 0.041884816753926704, 7: 0.08376963350785341, 8: 0.16753926701570682, 9: 0.33507853403141363, 10: 0.16753926701570682, 11: 0.08376963350785341, 12: 0.041884816753926704, 13: 0.020942408376963352, 14: 0.010471204188481676, 15: 0.005235602094240838, 16: 0.002617801047120419}
         "*** YOUR CODE HERE ***"
         allPossible = util.Counter()
         for pos in self.particlePos:
@@ -607,12 +611,12 @@ class JointParticleFilter:
             # print newParticle
             "*** YOUR CODE HERE ***"
 
-            ghostDist = util.Counter()
+            newPosDist = util.Counter()
             for i in range(self.numGhosts):
-                ghostDist = getPositionDistributionForGhost(setGhostPositions(gameState, newParticle)
+                newPosDist = getPositionDistributionForGhost(setGhostPositions(gameState, newParticle)
                                                          , i, self.ghostAgents[i])
                 # print util.sample(ghostDist)
-                newParticle[i] = util.sample(ghostDist)
+                newParticle[i] = util.sample(newPosDist)
                 # print newParticle
             "*** END YOUR CODE HERE ***"
             newParticles.append(tuple(newParticle))
@@ -652,4 +656,3 @@ def setGhostPositions(gameState, ghostPositions):
         conf = game.Configuration(pos, game.Directions.STOP)
         gameState.data.agentStates[index + 1] = game.AgentState(conf, False)
     return gameState
-
