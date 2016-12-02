@@ -72,7 +72,7 @@ class MiraClassifier:
                 diff = util.Counter()
                 for l in trainingData[i]:
                     diff[l] = t*trainingData[i][l]
-                self.weights[vectors.argMax()] -= diff
+                self.weights[vectors.argMax()]  -= diff
                 self.weights[trainingLabels[i]] += diff
 
     def classify(self, data ):
