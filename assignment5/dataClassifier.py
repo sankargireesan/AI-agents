@@ -157,16 +157,16 @@ def enhancedFeatureExtractorDigit(datum):
         features['1,2,3,7']=True
     else:
         features['1,2,3,7']=False
-    #
-    # count = 0
-    # for x in range(DIGIT_DATUM_WIDTH/4):
-    #     for y in range(8*DIGIT_DATUM_HEIGHT/10,DIGIT_DATUM_HEIGHT):
-    #         if features[(x,y)] == 1:
-    #             count += 1
-    # if count < .3*DIGIT_DATUM_HEIGHT*DIGIT_DATUM_WIDTH*.2:
-    #     features['0,6,8']=True
-    # else:
-    #     features['0,6,8']=False
+
+    count = 0
+    for x in range(DIGIT_DATUM_WIDTH/4):
+        for y in range(8*DIGIT_DATUM_HEIGHT/10,DIGIT_DATUM_HEIGHT):
+            if features[(x,y)] == 1:
+                count += 1
+    if count < .3*DIGIT_DATUM_HEIGHT*DIGIT_DATUM_WIDTH*.2:
+        features['0,6,8']=True
+    else:
+        features['0,6,8']=False
 
     count = 0
     for x in range(3*DIGIT_DATUM_WIDTH/8,5*DIGIT_DATUM_WIDTH/8):
@@ -231,6 +231,46 @@ def enhancedFeatureExtractorDigit(datum):
     else:
         features['HMlines']=False
 
+
+
+    c = 0
+    l = 0
+    for y in range(DIGIT_DATUM_HEIGHT):
+        t = 0
+        for x in range(DIGIT_DATUM_WIDTH):
+            if features[(x,y)] == 1:
+                t +=1
+            else:
+                t = 0
+
+            if t == 5:
+                l +=1
+                t = 0
+
+
+        if l > 0: features[c] = l
+        l = 0
+        c += 1
+
+
+    c = 0
+    l = 0
+    for y in range(DIGIT_DATUM_WIDTH):
+        t = 0
+        for x in range(DIGIT_DATUM_HEIGHT):
+            if features[(x,y)] == 1:
+                t +=5
+            else:
+                t = 0
+
+            if t == 2:
+                l +=1
+                t = 0
+
+
+        if l > 0: features[c] = l
+        l = 0
+        c += 1
 
     return features
 
